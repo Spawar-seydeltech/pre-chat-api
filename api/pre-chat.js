@@ -72,7 +72,7 @@ module.exports = async function handler(req, res) {
 
   /* ── Log (Vercel dashboard → Functions → Logs) ───────── */
   const timestamp = new Date().toISOString();
-  console.log('[pre-chat lead]', JSON.stringify({ name, email, phone, timestamp, origin: requestOrigin }));
+  console.log('[pre-chat lead]', JSON.stringify({ name, email, phone, currentpage, postcode, product, serialno, timestamp, origin: requestOrigin }));
 
   /* ── Success ─────────────────────────────────────────── */
   return res.status(200).json({ ok: true, timestamp });
