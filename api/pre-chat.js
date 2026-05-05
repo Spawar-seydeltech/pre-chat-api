@@ -57,6 +57,10 @@ module.exports = async function handler(req, res) {
   const name  = (body.name  || '').trim();
   const email = (body.email || '').trim();
   const phone = (body.phone || '').trim();
+  const currentpage = (body.currentpage || '').trim();   
+  const postcode    = (body.postcode    || '').trim();   
+  const product     = (body.product     || '').trim();   
+  const serialno    = (body.serialnumber|| '').trim(); 
 
   /* ── Validate ────────────────────────────────────────── */
   if (!name || !email) {
