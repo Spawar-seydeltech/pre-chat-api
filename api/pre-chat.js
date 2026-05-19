@@ -1,68 +1,47 @@
 // ============================================================
 //  api/pre-chat.js  — Vercel Serverless Function
-//
-//  CORS: Allows your live store, any Shopify preview URL,
-//  and localhost for development. No env variable needed.
 // ============================================================
 
 module.exports = async function handler(req, res) {
 
-  /* ── Allowed origins ─────────────────────────────────────
-     Add your real store domain here.
-     Shopify preview URLs (*.shopifypreview.com) and
-     localhost are always allowed automatically below.
-  ─────────────────────────────────────────────────────── */
   const ALLOWED_ORIGINS = [
-    'https://detaelectrical.com.au',      // your live store (no trailing slash)
-    'https://e24965-c4.myshopify.com',    // your myshopify domain
+    'https://detaelectrical.com.au',
+    'https://e24965-c4.myshopify.com',
   ];
 
-  /* ── Dynamically resolve correct CORS origin ─────────── */
   const requestOrigin = req.headers.origin || '';
 
   const isAllowed =
-    ALLOWED_ORIGINS.includes(requestOrigin)            ||  // exact match
-    /\.shopifypreview\.com$/.test(requestOrigin)       ||  // any preview URL
-    /\.myshopify\.com$/.test(requestOrigin)            ||  // any myshopify URL
-    /^https?:\/\/localhost(:\d+)?$/.test(requestOrigin);   // local dev
+    ALLOWED_ORIGINS.includes(requestOrigin)          ||
+    /\.shopifypreview\.com$/.test(requestOrigin)     ||
+    /\.myshopify\.com$/.test(requestOrigin)          ||
+    /^https?:\/\/localhost(:\d+)?$/.test(requestOrigin);
 
-  /* Send back the EXACT requesting origin if allowed,
-     otherwise send the first allowed origin as fallback  */
   const corsOrigin = isAllowed ? requestOrigin : ALLOWED_ORIGINS[0];
 
-  /* ── CORS headers — set on EVERY response ─────────────── */
   res.setHeader('Access-Control-Allow-Origin',  corsOrigin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Max-Age',       '86400');
-  res.setHeader('Vary', 'Origin'); // important for CDN caching
+  res.setHeader('Vary', 'Origin');
 
-  /* ── Handle preflight ────────────────────────────────── */
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  /* ── Block disallowed origins ────────────────────────── */
-  if (!isAllowed) {
-    return res.status(403).json({ error: 'Origin not allowed' });
-  }
-
-  /* ── Only POST beyond this point ─────────────────────── */
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!isAllowed)               return res.status(403).json({ error: 'Origin not allowed' });
+  if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
   /* ── Parse body ──────────────────────────────────────── */
-  const body  = req.body || {};
-  const name  = (body.name  || '').trim();
-  const email = (body.email || '').trim();
-  const phone = (body.phone || '').trim();
-  const currentpage = (body.currentpage || '').trim();   
-  const postcode    = (body.postcode    || '').trim();   
-  const product     = (body.product     || '').trim();   
-  const store       = (body.store       || '').trim();
-  const serialno    = (body.serialnumber|| '').trim(); 
-  const brandName   = (body.brandName   || '').trim();
+  const body      = req.body || {};
+  const name      = (body.name         || '').trim();
+  const email     = (body.email        || '').trim();
+  const phone     = (body.phone        || '').trim();
+  const currentpage = (body.currentpage  || '').trim();
+  const postcode  = (body.postcode     || '').trim();
+  const product   = (body.product      || '').trim();
+  const store     = (body.store        || '').trim();
+  const serialno  = (body.serialnumber || '').trim();
+  const brandName = (body.brandName    || '').trim();
+  // ── Accept timestamp from client, fall back to server time ──
+  const timestamp = (body.timestamp    || '').trim() || new Date().toISOString();
 
   /* ── Validate ────────────────────────────────────────── */
   if (!name || !email) {
@@ -72,9 +51,20 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'invalid email address' });
   }
 
-  /* ── Log (Vercel dashboard → Functions → Logs) ───────── */
-  const timestamp = new Date().toISOString();
-  console.log('[pre-chat lead]', JSON.stringify({ name, email, phone, currentpage, brandName, postcode, product, store, serialno, timestamp, origin: requestOrigin }));
+  /* ── Log ─────────────────────────────────────────────── */
+  console.log('[pre-chat lead]', JSON.stringify({
+    name,
+    email,
+    phone        : phone     || null,
+    currentpage  : currentpage || null,
+    brandName    : brandName || null,
+    postcode     : postcode  || null,
+    product      : product   || null,
+    store        : store     || null,
+    serialno     : serialno  || null,
+    timestamp,                          // ← now logged too
+    origin       : requestOrigin
+  }));
 
   /* ── Success ─────────────────────────────────────────── */
   return res.status(200).json({ ok: true, timestamp });
