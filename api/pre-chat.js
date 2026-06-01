@@ -6,7 +6,10 @@ module.exports = async function handler(req, res) {
 
   const ALLOWED_ORIGINS = [
     'https://detaelectrical.com.au',
-    'https://e24965-c4.myshopify.com',
+    'https://e24965-c4.myshopify.com', // Deta
+    'https://www.arlec.com.au/',
+    'arlec-au.myshopify.com'
+    
   ];
 
   const requestOrigin = req.headers.origin || '';
