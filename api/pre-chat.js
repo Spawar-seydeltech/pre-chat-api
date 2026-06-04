@@ -17,9 +17,9 @@ const ALLOWED_ORIGINS = [
   const requestOrigin = req.headers.origin || '';
 
   const isAllowed =
-    ALLOWED_ORIGINS.includes(requestOrigin)          ||
-    /\.shopifypreview\.com$/.test(requestOrigin)     ||
-    /\.myshopify\.com$/.test(requestOrigin)          ||
+    ALLOWED_ORIGINS.includes(requestOrigin) ||
+    /^https:\/\/.*\.shopifypreview\.com$/.test(requestOrigin) ||
+    /^https:\/\/.*\.myshopify\.com$/.test(requestOrigin) ||
     /^https?:\/\/localhost(:\d+)?$/.test(requestOrigin);
 
   const corsOrigin = isAllowed ? requestOrigin : ALLOWED_ORIGINS[0];
