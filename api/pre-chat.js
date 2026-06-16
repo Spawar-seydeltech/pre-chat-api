@@ -37,6 +37,7 @@ const ALLOWED_ORIGINS = [
   /* ── Parse body ──────────────────────────────────────── */
   const body      = req.body || {};
   const name      = (body.name         || '').trim();
+  const name      = (body.lastname         || '').trim();
   const email     = (body.email        || '').trim();
   const phone     = (body.phone        || '').trim();
   const currentpage = (body.currentpage  || '').trim();
@@ -59,6 +60,7 @@ const ALLOWED_ORIGINS = [
   /* ── Log ─────────────────────────────────────────────── */
   console.log('[pre-chat lead]', JSON.stringify({
     name,
+    lastname,
     email,
     phone        : phone     || null,
     currentpage  : currentpage || null,
